@@ -19,11 +19,12 @@
             <result property="modifiedTime" column="modified_time" jdbcType="TIMESTAMP"/>
             <result property="userRole" column="user_role" jdbcType="INTEGER"/>
             <result property="planetCode" column="planet_code" jdbcType="VARCHAR"/>
+            <result property="tags" column="tags" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,user_name,user_account,user_password,avatar,gender,
         phone,email,status,is_delete,created_time,
-        modified_time,user_role,planet_code
+        modified_time,user_role,planet_code,tags
     </sql>
 </mapper>

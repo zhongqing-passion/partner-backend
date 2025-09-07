@@ -2,6 +2,8 @@ package com.jonqing.usercenterbackend.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.jonqing.usercenterbackend.common.ErrorCode;
 import com.jonqing.usercenterbackend.exception.BusinessException;
 import com.jonqing.usercenterbackend.model.User;
@@ -16,6 +18,7 @@ import org.springframework.util.DigestUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -230,13 +233,45 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (CollectionUtils.isEmpty(tagNameList)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+        
+        long startTime = System.currentTimeMillis();
+        /**
+         * 方式1：Sql查询
+         */
         QueryWrapper queryWrapper = new QueryWrapper();
         for (String tagName : tagNameList) {
             queryWrapper.like("tags", tagName);
         }
         List<User> userList = userMapper.selectList(queryWrapper);
 //            userList.forEach(user -> getSafeUser(user));
+        log.info("sql query time = ：" + (System.currentTimeMillis() - startTime));
         return userList.stream().map(user -> getSafeUser(user)).collect(Collectors.toList());
+
+        /**
+         * 方式2：内存查询
+         */
+//        // 先查询所有用户
+//        QueryWrapper queryWrapper = new QueryWrapper();
+//        List<User> userList = userMapper.selectList(queryWrapper);
+//        Gson gson = new Gson();
+//        
+//        log.info("memory query time = ：" + (System.currentTimeMillis() - startTime));
+//        return userList.stream().filter(user -> {
+//            String tagsStr = user.getTags();
+//            // 从数据库中得到的数据要处理NPE
+//            if (StringUtils.isBlank(tagsStr)) {
+//                return false;
+//            }
+//            Set<String> tagNameSet = gson.fromJson(tagsStr, new TypeToken<Set<String>>(){}.getType());
+//            for (String tagName : tagNameList) {
+//                if (!tagNameSet.contains(tagName)) {
+//                    return false;
+//                }
+//                // 如果标签匹配，继续检查下一个标签
+//            }
+//            return true;    // 说明已经检查完所有需要的标签
+//        }).map(user -> getSafeUser(user)).collect(Collectors.toList());
+        
     }
 }
 

@@ -82,6 +82,8 @@ public class User implements Serializable {
     private Integer userRole;
 
     private String planetCode;
+    
+    private String tags;
 
     @Override
     public boolean equals(Object that) {
